@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的博客</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f0f0f;
+            color: #eeeeee;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+        }
+
+        .top {
+            height: 70px;
+            background: #29283f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        /* 设置按钮 */
+        .settings-btn {
+            width: 42px;
+            height: 42px;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: #ffffff;
+            font-size: 25px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255,255,255,0.12);
+            transform: rotate(25deg);
+        }
+
+        /* 设置弹窗背景 */
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 999;
+        }
+
+        .settings-overlay.show {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 82px 18px 20px;
+        }
+
+        /* 设置窗口 */
+        .settings-box {
+            width: 310px;
+            max-width: 92vw;
+            background: #202020;
+            border: 1px solid #383838;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            animation: settingsIn 0.18s ease;
+        }
+
+        @keyframes settingsIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .settings-header h2 {
+            font-size: 21px;
+            font-weight: 500;
+        }
+
+        .close-btn {
+            border: 0;
+            background: transparent;
+            color: #aaa;
+            font-size: 25px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        .language-title {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .language-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .language-item {
+            width: 100%;
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 12px;
+            background: transparent;
+            color: #eee;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .language-item:hover {
+            background: #303030;
+        }
+
+        .language-item.active {
+            background: #34344d;
+        }
+
+        .check {
+            color: #66aaff;
+            font-size: 18px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            margin: auto;
+            padding: 50px 25px 80px;
+        }
+
+        .intro {
+            text-align: center;
+            padding: 40px 10px 50px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            margin: auto;
+            margin-bottom: 25px;
+            border-radius: 50%;
+            background: #303030;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            border: 1px solid #444;
+        }
+
+        .intro h1 {
+            font-size: 40px;
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .intro p {
+            color: #999;
+            font-size: 17px;
+        }
+
+        .line {
+            height: 1px;
+            background: #292929;
+            margin-bottom: 40px;
+        }
+
+        .article {
+            padding: 30px 0;
+            border-bottom: 1px solid #292929;
+        }
+
+        .date {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .article h2 {
+            font-size: 30px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .article p {
+            color: #bdbdbd;
+            font-size: 16px;
+            line-height: 2;
+            margin-bottom: 15px;
+        }
+
+        .read {
+            display: inline-block;
+            color: #4d91e8;
+            font-size: 16px;
+            text-decoration: none;
+            margin-top: 5px;
+        }
+
+        .read:hover {
+            color: #75adff;
+            text-decoration: underline;
+        }
+
+        .about {
+            padding: 45px 0;
+            border-bottom: 1px solid #292929;
+        }
+
+        .about h2 {
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .about p {
+            color: #bbb;
+            line-height: 2;
+            font-size: 16px;
+        }
+
+        .tags {
+            margin-top: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #1d1d1d;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 7px 14px;
+            margin-right: 5px;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .contact {
+            padding-top: 45px;
+        }
+
+        .contact h2 {
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .contact p {
+            color: #aaa;
+            line-height: 2;
+        }
+
+        .contact a {
+            color: #5599ee;
+            text-decoration: none;
+        }
+
+        .footer {
+            text-align: center;
+            color: #555;
+            font-size: 13px;
+            margin-top: 60px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding-left: 22px;
+                padding-right: 22px;
+            }
+
+            .intro h1 {
+                font-size: 34px;
+            }
+
+            .intro p {
+                font-size: 15px;
+            }
+
+            .article h2 {
+                font-size: 27px;
+            }
+
+            .article p {
+                font-size: 15px;
+            }
+
+            .settings-overlay.show {
+                padding-top: 78px;
+            }
+
+            .settings-box {
+                width: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="top">
+    <div class="top-title" data-i18n="blogTitle">我的博客</div>
+
+    <!-- 左上角设置 -->
+    <button class="settings-btn" onclick="openSettings()" aria-label="Settings">
+        ⚙
+    </button>
+</header>
+
+<!-- 设置窗口 -->
+<div class="settings-overlay" id="settingsOverlay" onclick="overlayClick(event)">
+    <div class="settings-box">
+        <div class="settings-header">
+            <h2 data-i18n="settings">设置</h2>
+            <button class="close-btn" onclick="closeSettings()">×</button>
+        </div>
+
+        <div class="language-title" data-i18n="language">语言</div>
+
+        <div class="language-list">
+            <button class="language-item" data-lang="zh-CN" onclick="changeLanguage('zh-CN')">
+                <span>🇨🇳 简体中文</span><span class="check"></span>
+            </button>
+
+            <button class="language-item" data-lang="zh-TW" onclick="changeLanguage('zh-TW')">
+                <span>🇹🇼 繁體中文</span><span class="check"></span>
+            </button>
+
+            <button class="language-item" data-lang="en" onclick="changeLanguage('en')">
+                <span>🇺🇸 English</span><span class="check"></span>
+            </button>
+
+            <button class="language-item" data-lang="ru" onclick="changeLanguage('ru')">
+                <span>🇷🇺 Русский</span><span class="check"></span>
+            </button>
+
+            <button class="language-item" data-lang="fr" onclick="changeLanguage('fr')">
+                <span>🇫🇷 Français</span><span class="check"></span>
+            </button>
+
+            <button class="language-item" data-lang="ko" onclick="changeLanguage('ko')">
+                <span>🇰🇷 한국어</span><span class="check"></span>
+            </button>
+
+            <button class="language-item" data-lang="ja" onclick="changeLanguage('ja')">
+                <span>🇯🇵 日本語</span><span class="check"></span>
+            </button>
+
+            <button class="language-item" data-lang="ar-EG" onclick="changeLanguage('ar-EG')">
+                <span>🇪🇬 العربية</span><span class="check"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<main class="container">
+
+    <section class="intro">
+        <div class="avatar">叙焚</div>
+
+        <h1 data-i18n="personalHome">个人主页</h1>
+
+        <p data-i18n="team">思怡团队</p>
+    </section>
+
+    <div class="line"></div>
+
+    <article class="article">
+        <div class="date">2026年10月5日</div>
+
+        <h2 data-i18n="aboutMeTitle">关于我</h2>
+
+        <p data-i18n="aboutMeText">
+            你好，我是叙焚<br>
+            主玩《蔚蓝档案》《碧蓝档案》《Blue Archive》<br>
+            SCP基金会、AI（Si）、游戏、二次元、软件、编程
+        </p>
+
+        <a href="#" class="read" data-i18n="readMore">阅读更多 →</a>
+    </article>
+
+    <article class="article">
+        <div class="date">2026年10月1日</div>
+
+        <h2 data-i18n="agreementTitle">遵守协议</h2>
+
+        <p data-i18n="agreementText">
+            我作为思怡团队 主代表人 我们会严格遵守各种协议<br>
+            思怡团队 以及我（XuFen）都会 严格遵守协议 版权<br>
+            如果我们有侵权 或者其他人对我们侵权 请联系我们
+        </p>
+
+        <a href="#" class="read" data-i18n="readMore">阅读更多 →</a>
+    </article>
+
+    <article class="article">
+        <div class="date">2026年9月25日</div>
+
+        <h2 data-i18n="teamTitle">思怡团队</h2>
+
+        <p data-i18n="teamText">
+            思怡团队是由叙焚成立的一个团队<br>
+            思怡团队是一个小团队<br>
+            里面会开发一些应用
+        </p>
+
+        <a href="#" class="read" data-i18n="readMore">阅读更多 →</a>
+    </article>
+
+    <article class="article">
+        <div class="date">2026年9月20日</div>
+
+        <h2 data-i18n="lastMessageTitle">最后留言</h2>
+
+        <p data-i18n="lastMessageText">
+            𝕏（X平台）唯一账号 @XuFenSiYi<br>
+            其他账号如果没有在X平台公开那就是假的<br>
+            我们会在X平台发布我们的账号信息<br>
+            我的唯一QQ:3247459590<br>
+            QQ思怡团队交流群:115891656<br>
+            QQ频道:pd68241571
+        </p>
+
+        <a href="#" class="read" data-i18n="readMore">阅读更多 →</a>
+    </article>
+
+    <section class="about">
+        <h2 data-i18n="myTags">我的标签</h2>
+
+        <p></p>
+
+        <div class="tags">
+            <span class="tag" data-i18n="tagBA">蔚蓝档案</span>
+            <span class="tag" data-i18n="tagSCP">SCP基金会</span>
+            <span class="tag" data-i18n="tagTeam">思怡团队</span>
+            <span class="tag" data-i18n="tagGames">游戏/编程/软件</span>
+            <span class="tag" data-i18n="tagAnime">二次元</span>
+        </div>
+    </section>
+
+    <section class="contact">
+        <h2 data-i18n="contact">联系我们</h2>
+
+        <p>
+            <span data-i18n="qq">QQ：</span>
+            <a href="https://qm.qq.com/q/U4FtOyaKMm" target="_blank">3247459590</a>
+        </p>
+
+        <p>
+            <span data-i18n="email">邮箱：</span>
+            <a href="mailto:3247459590@qq.com">3247459590@qq.com</a>
+        </p>
+
+        <p>
+            <span data-i18n="group">QQ思怡团队交流群：</span>
+            <a href="https://pd.qq.com/s/ain4t0431?b=9" target="_blank">115891656</a>
+        </p>
+
+        <p>
+            <span data-i18n="channel">QQ思怡频道：</span>
+            <a href="https://qm.qq.com/q/U4FtOyaKMm" target="_blank">pd68241571</a>
+        </p>
+
+        <p>
+            𝕏（X）：
+            <a href="https://x.com/XuFen_SiYi_Mika" target="_blank">@XuFen_SiYi_Mika</a>
+        </p>
+    </section>
+
+    <footer class="footer">
+        © 2026
+    </footer>
+
+</main>
+
+<script>
+    const translations = {
+        "zh-CN": {
+            blogTitle: "我的博客",
+            settings: "设置",
+            language: "语言",
+            personalHome: "个人主页",
+            team: "思怡团队",
+            aboutMeTitle: "关于我",
+            aboutMeText: "你好，我是叙焚<br>主玩《蔚蓝档案》《碧蓝档案》《Blue Archive》<br>SCP基金会、AI（Si）、游戏、二次元、软件、编程",
+            agreementTitle: "遵守协议",
+            agreementText: "我作为思怡团队 主代表人 我们会严格遵守各种协议<br>思怡团队 以及我（XuFen）都会 严格遵守协议 版权<br>如果我们有侵权 或者其他人对我们侵权 请联系我们",
+            teamTitle: "思怡团队",
+            teamText: "思怡团队是由叙焚成立的一个团队<br>思怡团队是一个小团队<br>里面会开发一些应用",
+            lastMessageTitle: "最后留言",
+            lastMessageText: "𝕏（X平台）唯一账号 @XuFenSiYi<br>其他账号如果没有在X平台公开那就是假的<br>我们会在X平台发布我们的账号信息<br>我的唯一QQ:3247459590<br>QQ思怡团队交流群:115891656<br>QQ频道:pd68241571",
+            myTags: "我的标签",
+            tagBA: "蔚蓝档案",
+            tagSCP: "SCP基金会",
+            tagTeam: "思怡团队",
+            tagGames: "游戏/编程/软件",
+            tagAnime: "二次元",
+            contact: "联系我们",
+            qq: "QQ：",
+            email: "邮箱：",
+            group: "QQ思怡团队交流群：",
+            channel: "QQ思怡频道：",
+            readMore: "阅读更多 →"
+        },
+
+        "zh-TW": {
+            blogTitle: "我的部落格",
+            settings: "設定",
+            language: "語言",
+            personalHome: "個人主頁",
+            team: "思怡團隊",
+            aboutMeTitle: "關於我",
+            aboutMeText: "你好，我是叙焚<br>主玩《蔚藍檔案》《碧藍檔案》《Blue Archive》<br>SCP基金會、AI（Si）、遊戲、二次元、軟體、程式設計",
+            agreementTitle: "遵守協議",
+            agreementText: "我作為思怡團隊主要代表人，我們會嚴格遵守各種協議<br>思怡團隊以及我（XuFen）都會嚴格遵守協議與版權<br>如果我們有侵權，或者其他人對我們侵權，請聯絡我們",
+            teamTitle: "思怡團隊",
+            teamText: "思怡團隊是由叙焚成立的一個團隊<br>思怡團隊是一個小團隊<br>裡面會開發一些應用程式",
+            lastMessageTitle: "最後留言",
+            lastMessageText: "𝕏（X平台）唯一帳號 @XuFenSiYi<br>其他帳號如果沒有在X平台公開，那就是假的<br>我們會在X平台發布我們的帳號資訊<br>我的唯一QQ:3247459590<br>QQ思怡團隊交流群:115891656<br>QQ頻道:pd68241571",
+            myTags: "我的標籤",
+            tagBA: "蔚藍檔案",
+            tagSCP: "SCP基金會",
+            tagTeam: "思怡團隊",
+            tagGames: "遊戲/程式設計/軟體",
+            tagAnime: "二次元",
+            contact: "聯絡我們",
+            qq: "QQ：",
+            email: "電子郵件：",
+            group: "QQ思怡團隊交流群：",
+            channel: "QQ思怡頻道：",
+            readMore: "閱讀更多 →"
+        },
+
+        "en": {
+            blogTitle: "My Blog",
+            settings: "Settings",
+            language: "Language",
+            personalHome: "Personal Homepage",
+            team: "SiYi Team",
+            aboutMeTitle: "About Me",
+            aboutMeText: "Hello, I'm XuFen.<br>I mainly play Blue Archive.<br>SCP Foundation, AI (Si), games, anime, software and programming.",
+            agreementTitle: "Compliance",
+            agreementText: "As the main representative of the SiYi Team, we strictly follow various agreements.<br>The SiYi Team and I (XuFen) respect agreements and copyrights.<br>If we infringe your rights, or if someone infringes ours, please contact us.",
+            teamTitle: "SiYi Team",
+            teamText: "The SiYi Team was founded by XuFen.<br>It is a small team.<br>We develop various applications.",
+            lastMessageTitle: "Final Message",
+            lastMessageText: "𝕏 (X) official account: @XuFenSiYi<br>Any other account not publicly listed on X is fake.<br>We will publish our official account information on X.<br>My only QQ: 3247459590<br>QQ SiYi Team Group: 115891656<br>QQ Channel: pd68241571",
+            myTags: "My Tags",
+            tagBA: "Blue Archive",
+            tagSCP: "SCP Foundation",
+            tagTeam: "SiYi Team",
+            tagGames: "Games / Programming / Software",
+            tagAnime: "Anime",
+            contact: "Contact Us",
+            qq: "QQ: ",
+            email: "Email: ",
+            group: "QQ SiYi Team Group: ",
+            channel: "QQ SiYi Channel: ",
+            readMore: "Read More →"
+        },
+
+        "ru": {
+            blogTitle: "Мой блог",
+            settings: "Настройки",
+            language: "Язык",
+            personalHome: "Личная страница",
+            team: "Команда SiYi",
+            aboutMeTitle: "Обо мне",
+            aboutMeText: "Привет, я XuFen.<br>В основном играю в Blue Archive.<br>SCP Foundation, ИИ (Si), игры, аниме, программирование и ПО.",
+            agreementTitle: "Соблюдение правил",
+            agreementText: "Как главный представитель команды SiYi, мы строго соблюдаем различные соглашения.<br>Команда SiYi и я (XuFen) уважаем правила и авторские права.<br>Если мы нарушили ваши права или кто-то нарушил наши, свяжитесь с нами.",
+            teamTitle: "Команда SiYi",
+            teamText: "Команда SiYi была создана XuFen.<br>Это небольшая команда.<br>Мы разрабатываем различные приложения.",
+            lastMessageTitle: "Последнее сообщение",
+            lastMessageText: "𝕏 (X) официальный аккаунт: @XuFenSiYi<br>Любой другой аккаунт, не опубликованный на X, является поддельным.<br>Мы будем публиковать официальную информацию в X.<br>Мой QQ: 3247459590<br>Группа QQ команды SiYi: 115891656<br>Канал QQ: pd68241571",
+            myTags: "Мои теги",
+            tagBA: "Blue Archive",
+            tagSCP: "Фонд SCP",
+            tagTeam: "Команда SiYi",
+            tagGames: "Игры / Программирование / ПО",
+            tagAnime: "Аниме",
+            contact: "Связаться с нами",
+            qq: "QQ: ",
+            email: "Эл. почта: ",
+            group: "Группа QQ команды SiYi: ",
+            channel: "Канал QQ SiYi: ",
+            readMore: "Подробнее →"
+        },
+
+        "fr": {
+            blogTitle: "Mon blog",
+            settings: "Paramètres",
+            language: "Langue",
+            personalHome: "Page personnelle",
+            team: "Équipe SiYi",
+            aboutMeTitle: "À propos de moi",
+            aboutMeText: "Bonjour, je suis XuFen.<br>Je joue principalement à Blue Archive.<br>Fondation SCP, IA (Si), jeux, anime, logiciels et programmation.",
+            agreementTitle: "Respect des règles",
+            agreementText: "En tant que représentant principal de l'équipe SiYi, nous respectons strictement les différents accords.<br>L'équipe SiYi et moi (XuFen) respectons les accords et les droits d'auteur.<br>Contactez-nous en cas de problème de droits.",
+            teamTitle: "Équipe SiYi",
+            teamText: "L'équipe SiYi a été fondée par XuFen.<br>C'est une petite équipe.<br>Nous développons différentes applications.",
+            lastMessageTitle: "Dernier message",
+            lastMessageText: "𝕏 (X) compte officiel : @XuFenSiYi<br>Tout autre compte non publié sur X est faux.<br>Nous publierons les informations officielles sur X.<br>Mon QQ : 3247459590<br>Groupe QQ SiYi : 115891656<br>Canal QQ : pd68241571",
+            myTags: "Mes tags",
+            tagBA: "Blue Archive",
+            tagSCP: "Fondation SCP",
+            tagTeam: "Équipe SiYi",
+            tagGames: "Jeux / Programmation / Logiciels",
+            tagAnime: "Anime",
+            contact: "Nous contacter",
+            qq: "QQ : ",
+            email: "E-mail : ",
+            group: "Groupe QQ SiYi : ",
+            channel: "Canal QQ SiYi : ",
+            readMore: "Lire plus →"
+        },
+
+        "ko": {
+            blogTitle: "내 블로그",
+            settings: "설정",
+            language: "언어",
+            personalHome: "개인 홈페이지",
+            team: "SiYi 팀",
+            aboutMeTitle: "소개",
+            aboutMeText: "안녕하세요, 저는 XuFen입니다.<br>주로 블루 아카이브를 플레이합니다.<br>SCP 재단, AI (Si), 게임, 애니메이션, 소프트웨어, 프로그래밍.",
+            agreementTitle: "규정 준수",
+            agreementText: "SiYi 팀의 대표로서 다양한 규정을 엄격히 준수합니다.<br>SiYi 팀과 저(XuFen)는 규정과 저작권을 존중합니다.<br>권리 침해 문제가 있다면 연락해 주세요.",
+            teamTitle: "SiYi 팀",
+            teamText: "SiYi 팀은 XuFen이 설립했습니다.<br>소규모 팀입니다.<br>다양한 애플리케이션을 개발합니다.",
+            lastMessageTitle: "마지막 메시지",
+            lastMessageText: "𝕏 (X) 공식 계정: @XuFenSiYi<br>X에 공개되지 않은 다른 계정은 가짜입니다.<br>공식 계정 정보는 X에서 공개합니다.<br>내 QQ: 3247459590<br>QQ SiYi 팀 그룹: 115891656<br>QQ 채널: pd68241571",
+            myTags: "내 태그",
+            tagBA: "블루 아카이브",
+            tagSCP: "SCP 재단",
+            tagTeam: "SiYi 팀",
+            tagGames: "게임 / 프로그래밍 / 소프트웨어",
+            tagAnime: "애니메이션",
+            contact: "연락처",
+            qq: "QQ: ",
+            email: "이메일: ",
+            group: "QQ SiYi 팀 그룹: ",
+            channel: "QQ SiYi 채널: ",
+            readMore: "더 보기 →"
+        },
+
+        "ja": {
+            blogTitle: "マイブログ",
+            settings: "設定",
+            language: "言語",
+            personalHome: "プロフィール",
+            team: "SiYiチーム",
+            aboutMeTitle: "私について",
+            aboutMeText: "こんにちは、XuFenです。<br>主にブルーアーカイブをプレイしています。<br>SCP財団、AI（Si）、ゲーム、アニメ、ソフトウェア、プログラミング。",
+            agreementTitle: "規約の遵守",
+            agreementText: "SiYiチームの代表として、さまざまな規約を厳格に遵守します。<br>SiYiチームと私（XuFen）は規約と著作権を尊重します。<br>権利侵害などがありましたらご連絡ください。",
+            teamTitle: "SiYiチーム",
+            teamText: "SiYiチームはXuFenによって設立されました。<br>小さなチームです。<br>さまざまなアプリを開発しています。",
+            lastMessageTitle: "最後のメッセージ",
+            lastMessageText: "𝕏（X）公式アカウント：@XuFenSiYi<br>Xで公開されていない他のアカウントは偽物です。<br>公式アカウント情報はXで公開します。<br>私のQQ：3247459590<br>QQ SiYiチームグループ：115891656<br>QQチャンネル：pd68241571",
+            myTags: "タグ",
+            tagBA: "ブルーアーカイブ",
+            tagSCP: "SCP財団",
+            tagTeam: "SiYiチーム",
+            tagGames: "ゲーム / プログラミング / ソフトウェア",
+            tagAnime: "アニメ",
+            contact: "お問い合わせ",
+            qq: "QQ：",
+            email: "メール：",
+            group: "QQ SiYiチームグループ：",
+            channel: "QQ SiYiチャンネル：",
+            readMore: "続きを読む →"
+        },
+
+        "ar-EG": {
+            blogTitle: "مدونتي",
+            settings: "الإعدادات",
+            language: "اللغة",
+            personalHome: "الصفحة الشخصية",
+            team: "فريق SiYi",
+            aboutMeTitle: "من أنا",
+            aboutMeText: "مرحباً، أنا XuFen.<br>ألعب بشكل أساسي Blue Archive.<br>مؤسسة SCP، الذكاء الاصطناعي (Si)، الألعاب، الأنمي، البرامج والبرمجة.",
+            agreementTitle: "الالتزام بالقواعد",
+            agreementText: "بصفتي الممثل الرئيسي لفريق SiYi، نلتزم بشكل صارم بالاتفاقيات المختلفة.<br>فريق SiYi وأنا (XuFen) نحترم الاتفاقيات وحقوق النشر.<br>إذا حدث انتهاك للحقوق، يرجى التواصل معنا.",
+            teamTitle: "فريق SiYi",
+            teamText: "تم تأسيس فريق SiYi بواسطة XuFen.<br>إنه فريق صغير.<br>نقوم بتطوير تطبيقات مختلفة.",
+            lastMessageTitle: "الرسالة الأخيرة",
+            lastMessageText: "𝕏 (X) الحساب الرسمي: @XuFenSiYi<br>أي حساب آخر غير منشور على X هو حساب مزيف.<br>سننشر معلومات حساباتنا الرسمية على X.<br>QQ الخاص بي: 3247459590<br>مجموعة QQ لفريق SiYi: 115891656<br>قناة QQ: pd68241571",
+            myTags: "وسومي",
+            tagBA: "Blue Archive",
+            tagSCP: "مؤسسة SCP",
+            tagTeam: "فريق SiYi",
+            tagGames: "ألعاب / برمجة / برامج",
+            tagAnime: "أنمي",
+            contact: "اتصل بنا",
+            qq: "QQ: ",
+            email: "البريد الإلكتروني: ",
+            group: "مجموعة QQ لفريق SiYi: ",
+            channel: "قناة QQ SiYi: ",
+            readMore: "اقرأ المزيد →"
+        }
+    };
+
+    let currentLanguage = localStorage.getItem("siteLanguage") || "zh-CN";
+
+    function openSettings() {
+        document.getElementById("settingsOverlay").classList.add("show");
+        updateActiveLanguage();
+    }
+
+    function closeSettings() {
+        document.getElementById("settingsOverlay").classList.remove("show");
+    }
+
+    function overlayClick(event) {
+        if (event.target === document.getElementById("settingsOverlay")) {
+            closeSettings();
+        }
+    }
+
+    function changeLanguage(language) {
+        currentLanguage = language;
+        localStorage.setItem("siteLanguage", language);
+
+        applyLanguage(language);
+        updateActiveLanguage();
+
+        // 选择语言后自动关闭设置
+        setTimeout(closeSettings, 180);
+    }
+
+    function applyLanguage(language) {
+        const data = translations[language] || translations["zh-CN"];
+
+        document.documentElement.lang = language;
+        document.documentElement.dir = language === "ar-EG" ? "rtl" : "ltr";
+
+        document.querySelectorAll("[data-i18n]").forEach(function(element) {
+            const key = element.getAttribute("data-i18n");
+
+            if (data[key] !== undefined) {
+                element.innerHTML = data[key];
+            }
+        });
+
+        document.title = data.blogTitle;
+    }
+
+    function updateActiveLanguage() {
+        document.querySelectorAll(".language-item").forEach(function(item) {
+            const check = item.querySelector(".check");
+
+            if (item.dataset.lang === currentLanguage) {
+                item.classList.add("active");
+                check.textContent = "✓";
+            } else {
+                item.classList.remove("active");
+                check.textContent = "";
+            }
+        });
+    }
+
+    // 页面打开时自动读取上次选择的语言
+    applyLanguage(currentLanguage);
+    updateActiveLanguage();
+
+    // ESC 关闭设置
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            closeSettings();
+        }
+    });
+</script>
+
+</body>
+</html>
